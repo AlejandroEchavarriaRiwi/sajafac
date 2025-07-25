@@ -9,11 +9,13 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
-  email     String   @unique
   name      String?
+  email     String   @unique
+  password  String
   createdAt DateTime @default(now())
   sales     Sale[]
 }
+
 
 model Product {
   id         String   @id @default(cuid())

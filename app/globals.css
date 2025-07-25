@@ -1,15 +1,15 @@
-@import "tailwindcss/preflight";
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
-  --background: #f8f9fb;
-  --foreground: #1e1e1e;
-  --card: #ffffff;
-  --primary: #134395;
+  --background: 220 20% 98%;     /* #f8f9fb en HSL */
+  --foreground: 240 5% 13%;      /* #1e1e1e */
+  --card: 0 0% 100%;             /* #ffffff */
+  --primary: 216 76% 33%;        /* #134395 */
+  --muted-foreground: 220 9% 46%;/* #6b7280 */
 }
 
 .dark {
-  --background: #1a1a1a;
-  --foreground: #f0f0f0;
-  --card: #222222;
+  --background: 0 0% 10%;        /* #1a1a1a */
+  --foreground: 0 0% 94%;        /* #f0f0f0 */
+  --card: 0 0% 13%;              /* #222222 */
 }
