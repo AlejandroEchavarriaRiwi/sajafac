@@ -1,140 +1,111 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
-interface EditProductFormProps {
+interface Product {
   id: string;
+  name: string;
+  description: string;
+  type: string;
+  cost: number;
+  price: number;
 }
 
-const EditProductForm = ({ id }: EditProductFormProps) => {
-  const router = useRouter();
+interface Props {
+  product: Product;
+}
 
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    type: "",
-    cost: 0,
-    price: 0,
+export default function EditProductForm({ product }: Props) {
+  const [formData, setFormData] = useState({
+    name: product.name,
+    description: product.description,
+    type: product.type,
+    cost: product.cost.toString(),
+    price: product.price.toString(),
   });
 
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchProduct = async () => {
-      const res = await fetch(`/api/products/${id}`);
-      if (res.ok) {
-        const data = await res.json();
-        setForm({
-          name: data.name,
-          description: data.description,
-          type: data.type,
-          cost: data.cost,
-          price: data.price,
-        });
-      } else {
-        alert("Error al cargar el producto");
-      }
-    };
-
-    fetchProduct();
-  }, [id]);
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: name === "cost" || name === "price" ? Number(value) : value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
-    const res = await fetch(`/api/products/${id}`, {
+    const updatedProduct = {
+      name: formData.name,
+      description: formData.description,
+      type: formData.type,
+      cost: Number(formData.cost),
+      price: Number(formData.price),
+    };
+
+    const res = await fetch(`/api/products/${product.id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedProduct),
     });
 
-    setLoading(false);
-
     if (res.ok) {
-      alert("Producto actualizado");
       router.push("/dashboard/products");
+      router.refresh();
     } else {
-      const data = await res.json();
-      alert(data.error || "Error al actualizar");
+      console.error("Error actualizando producto");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto p-4 shadow-md rounded">
-      <h2 className="text-xl font-bold">Editar Producto</h2>
-
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4 p-4 border rounded">
       <input
         type="text"
         name="name"
-        placeholder="Nombre"
-        value={form.name}
+        value={formData.name}
         onChange={handleChange}
-        required
+        placeholder="Nombre"
         className="w-full border p-2"
+        required
       />
-
       <textarea
         name="description"
-        placeholder="Descripción"
-        value={form.description}
+        value={formData.description}
         onChange={handleChange}
-        required
+        placeholder="Descripción"
         className="w-full border p-2"
+        required
       />
-
       <input
         type="text"
         name="type"
-        placeholder="Tipo"
-        value={form.type}
+        value={formData.type}
         onChange={handleChange}
-        required
+        placeholder="Tipo"
         className="w-full border p-2"
+        required
       />
-
       <input
         type="number"
         name="cost"
-        placeholder="Costo"
-        value={form.cost}
+        value={formData.cost}
         onChange={handleChange}
-        required
-        min={0}
+        placeholder="Costo"
         className="w-full border p-2"
+        required
       />
-
       <input
         type="number"
         name="price"
-        placeholder="Precio"
-        value={form.price}
+        value={formData.price}
         onChange={handleChange}
-        required
-        min={0}
+        placeholder="Precio"
         className="w-full border p-2"
+        required
       />
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
-        {loading ? "Guardando..." : "Guardar Cambios"}
+      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+        Guardar cambios
       </button>
     </form>
   );
-};
-
-export default EditProductForm;
+}
