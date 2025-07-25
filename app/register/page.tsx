@@ -24,7 +24,7 @@ export default function RegisterPage() {
 
     if (res.ok) {
       alert("Usuario registrado correctamente");
-      router.push("/login");
+      router.push("/");
     } else {
       const { error } = await res.json();
       alert(error);
