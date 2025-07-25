@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface Product {
@@ -12,78 +12,58 @@ interface Product {
   price: number;
 }
 
-interface Props {
+interface EditProductFormProps {
   product: Product;
 }
 
-export default function EditProductForm({ product }: Props) {
-  const [formData, setFormData] = useState({
-    name: product.name,
-    description: product.description,
-    type: product.type,
-    cost: product.cost.toString(),
-    price: product.price.toString(),
-  });
-
+export default function EditProductForm({ product }: EditProductFormProps) {
+  const [formData, setFormData] = useState<Product>(product);
   const router = useRouter();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData({ ...formData, [name]: name === "cost" || name === "price" ? parseFloat(value) : value });
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const updatedProduct = {
-      name: formData.name,
-      description: formData.description,
-      type: formData.type,
-      cost: Number(formData.cost),
-      price: Number(formData.price),
-    };
-
-    const res = await fetch(`/api/products/${product.id}`, {
+    const res = await fetch(`/api/products/${formData.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedProduct),
+      body: JSON.stringify(formData),
     });
 
     if (res.ok) {
-      router.push("/dashboard/products");
+      router.push("/dashboard/products  ");
       router.refresh();
     } else {
-      console.error("Error actualizando producto");
+      alert("Error al actualizar el producto");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4 p-4 border rounded">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <input
-        type="text"
         name="name"
         value={formData.name}
         onChange={handleChange}
         placeholder="Nombre"
-        className="w-full border p-2"
-        required
+        className="w-full p-2 border rounded"
       />
-      <textarea
+      <input
         name="description"
         value={formData.description}
         onChange={handleChange}
         placeholder="Descripción"
-        className="w-full border p-2"
-        required
+        className="w-full p-2 border rounded"
       />
       <input
-        type="text"
         name="type"
         value={formData.type}
         onChange={handleChange}
         placeholder="Tipo"
-        className="w-full border p-2"
-        required
+        className="w-full p-2 border rounded"
       />
       <input
         type="number"
@@ -91,8 +71,7 @@ export default function EditProductForm({ product }: Props) {
         value={formData.cost}
         onChange={handleChange}
         placeholder="Costo"
-        className="w-full border p-2"
-        required
+        className="w-full p-2 border rounded"
       />
       <input
         type="number"
@@ -100,10 +79,9 @@ export default function EditProductForm({ product }: Props) {
         value={formData.price}
         onChange={handleChange}
         placeholder="Precio"
-        className="w-full border p-2"
-        required
+        className="w-full p-2 border rounded"
       />
-      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+      <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
         Guardar cambios
       </button>
     </form>

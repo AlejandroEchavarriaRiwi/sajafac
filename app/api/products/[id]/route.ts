@@ -1,7 +1,20 @@
-import { prisma } from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
+// app/api/products/[id]/route.ts
 
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
+import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+type Context = {
+  params: {
+    id: string;
+  };
+};
+
+// GET product by ID
+export async function GET(
+  _req: NextRequest,
+  context: Context
+) {
   const { id } = context.params;
 
   try {
@@ -19,21 +32,23 @@ export async function GET(req: NextRequest, context: { params: { id: string } })
   }
 }
 
-export async function PUT(req: NextRequest, context: { params: { id: string } }) {
+// PUT update product
+export async function PUT(
+  req: NextRequest,
+  context: Context
+) {
   const { id } = context.params;
+  const { name, description, type, cost, price } = await req.json();
 
   try {
-    const data = await req.json();
-    const { name, description, type, cost, price } = data;
-
     const updated = await prisma.product.update({
       where: { id },
       data: {
         name,
         description,
         type,
-        cost: Number(cost),
-        price: Number(price),
+        cost,
+        price,
       },
     });
 
@@ -43,7 +58,11 @@ export async function PUT(req: NextRequest, context: { params: { id: string } })
   }
 }
 
-export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
+// DELETE product
+export async function DELETE(
+  _req: NextRequest,
+  context: Context
+) {
   const { id } = context.params;
 
   try {
