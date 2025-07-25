@@ -1,15 +1,24 @@
 // src/app/api/products/[id]/route.ts
 
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+// Utilidad para obtener el ID desde la URL
+function extractIdFromUrl(req: NextRequest): string | null {
+  const url = req.nextUrl;
+  const segments = url.pathname.split("/");
+  return segments[segments.length - 1] || null;
+}
+
+export async function GET(req: NextRequest) {
+  const id = extractIdFromUrl(req);
+  if (!id) {
+    return NextResponse.json({ error: "ID no proporcionado" }, { status: 400 });
+  }
+
   try {
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!product) {
@@ -22,16 +31,18 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest) {
+  const id = extractIdFromUrl(req);
+  if (!id) {
+    return NextResponse.json({ error: "ID no proporcionado" }, { status: 400 });
+  }
+
   const data = await req.json();
   const { name, description, type, cost, price } = data;
 
   try {
     const updated = await prisma.product.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
         description,
@@ -47,13 +58,15 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest) {
+  const id = extractIdFromUrl(req);
+  if (!id) {
+    return NextResponse.json({ error: "ID no proporcionado" }, { status: 400 });
+  }
+
   try {
     await prisma.product.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: "Producto eliminado" });
