@@ -1,21 +1,27 @@
-import "./globals.css";
-import { Inter } from "next/font/google";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { ThemeProvider } from "@/components/theme-provider";
+import type React from "react"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { Toaster } from "@/components/ui/sonner"
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"] })
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession(authOptions); // Puedes eliminar si no es necesario aquí
+export const metadata: Metadata = {
+  title: "Sistema de Facturación SAJA",
+  description: "Sistema de facturación para SAJA",
+}
 
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body className={`${inter.className} bg-background text-foreground`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-        </ThemeProvider>
+    <html lang="es">
+      <body className={inter.className}>
+        {children}
+        <Toaster />
       </body>
     </html>
-  );
+  )
 }
